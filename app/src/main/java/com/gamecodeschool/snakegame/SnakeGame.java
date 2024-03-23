@@ -233,7 +233,7 @@ class SnakeGame extends SurfaceView implements Runnable{
             // Draw some text while paused
             mpaused();
             mPaint.setTextSize(90);
-            drawingText("Nancy Zhu", 100, 110);
+            drawingText("Nancy Zhu", 1850, 100);
             drawingText("Jaime Montanez", 1700, 190);
 
             // Unlock the mCanvas and reveal the graphics for this frame
