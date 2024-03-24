@@ -8,12 +8,10 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Typeface;
-import android.graphics.fonts.Font;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Build;
-import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -68,21 +66,9 @@ class SnakeGame extends SurfaceView implements Runnable{
         int blockSize = size.x / NUM_BLOCKS_WIDE;
         // How many blocks of the same size will fit into the height
         mNumBlocksHigh = size.y / blockSize;
+        // managing sounds
+        managingSound();
 
-        // Initialize the SoundPool
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            AudioAttributes audioAttributes = new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .build();
-
-            mSP = new SoundPool.Builder()
-                    .setMaxStreams(5)
-                    .setAudioAttributes(audioAttributes)
-                    .build();
-        } else {
-            mSP = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
-        }
         try {
             AssetManager assetManager = context.getAssets();
             AssetFileDescriptor descriptor;
@@ -113,6 +99,32 @@ class SnakeGame extends SurfaceView implements Runnable{
                         mNumBlocksHigh),
                 blockSize);
 
+    }
+
+    public int getmScore() {
+        return mScore;
+    }
+
+    public void setmScore(int mScore) {
+        this.mScore = mScore;
+    }
+
+    public void managingSound() {
+        final boolean isSDKINT = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+        // Initialize the SoundPool
+        if (isSDKINT) {
+            AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build();
+
+            mSP = new SoundPool.Builder()
+                    .setMaxStreams(5)
+                    .setAudioAttributes(audioAttributes)
+                    .build();
+        } else {
+            mSP = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
+        }
     }
 
 
@@ -209,16 +221,10 @@ class SnakeGame extends SurfaceView implements Runnable{
         // Get a lock on the mCanvas
         if (mSurfaceHolder.getSurface().isValid()) {
 
-
             mCanvas = mSurfaceHolder.lockCanvas();
 
-            mBitmapBackground = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.background);
-            mBitmapBackground = Bitmap.createScaledBitmap(mBitmapBackground, 2300, 1080, true);
-            mCanvas.drawBitmap(mBitmapBackground,
-                    0, 0 , mPaint);
-
-            // Fill the screen with a color
-            //mCanvas.drawColor(Color.argb(255, 26, 128, 182));
+            //setting background
+            settingBackground();
 
             // Set the size and color of the mPaint for the text
             settingColor(Color.argb(255, 255, 255, 255));
@@ -232,13 +238,23 @@ class SnakeGame extends SurfaceView implements Runnable{
             drawingappleandsnake();
             // Draw some text while paused
             mpaused();
-            mPaint.setTextSize(90);
-            drawingText("Nancy Zhu", 1850, 100);
-            drawingText("Jaime Montanez", 1700, 190);
+
+            printingNames();
 
             // Unlock the mCanvas and reveal the graphics for this frame
             mSurfaceHolder.unlockCanvasAndPost(mCanvas);
         }
+    }
+    public void printingNames() {
+        mPaint.setTextSize(90);
+        drawingText("Nancy Zhu", 1850, 100);
+        drawingText("Jaime Montanez", 1700, 190);
+    }
+    public void settingBackground() {
+        mBitmapBackground = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.background);
+        mBitmapBackground = Bitmap.createScaledBitmap(mBitmapBackground, 2300, 1080, true);
+        mCanvas.drawBitmap(mBitmapBackground,
+                0, 0 , mPaint);
     }
     public void drawingappleandsnake() {
         mApple.draw(mCanvas, mPaint);
