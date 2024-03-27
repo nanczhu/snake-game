@@ -20,10 +20,12 @@ import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.BitmapFactory;
 
-//importing font package
+interface IDraw {
+    void draw();
 
+}
 
-class SnakeGame extends SurfaceView implements Runnable{
+class SnakeGame extends SurfaceView implements Runnable, IDraw{
     // Objects for the game loop/thread
     private Thread mThread = null;
     // Control pausing between updates
@@ -224,6 +226,7 @@ class SnakeGame extends SurfaceView implements Runnable{
 
 
     // Do all the drawing
+    @Override
     public void draw() {
         // Get a lock on the mCanvas
         if (mSurfaceHolder.getSurface().isValid()) {
@@ -234,9 +237,7 @@ class SnakeGame extends SurfaceView implements Runnable{
             settingBackground();
 
             // Set the size and color of the mPaint for the text
-            settingColor(Color.argb(255, 255, 255, 255));
-            mPaint.setTextSize(120);
-
+            settingColorandSize(Color.argb(255, 255, 255, 255), 120);
 
             // Draw the score
             mCanvas.drawText("" + mScore, 20, 120, mPaint);
@@ -291,17 +292,17 @@ class SnakeGame extends SurfaceView implements Runnable{
     public void mpaused() {
         if(mPaused){
             // Set the size and color of the mPaint for the text
-            settingColor(Color.argb(255, 255, 255, 255));
-            //mPaint.setColor(Color.argb(255, 255, 255, 255));
-            mPaint.setTextSize(250);
+            settingColorandSize(Color.argb(255, 255, 255, 255), 250);
+
             mPaint.setTypeface(Typeface.create("cursive", Typeface.NORMAL));
             // Draw the message
             // We will give this an international upgrade soon
             drawingText("Tap To Play!", 200, 700);
         }
     }
-    public void settingColor(int color) {
+    public void settingColorandSize(int color, int size) {
         mPaint.setColor(color);
+        mPaint.setTextSize(size);
     }
     public void drawingText(String text, int x, int y) {
         mCanvas.drawText(text, x, y, mPaint);

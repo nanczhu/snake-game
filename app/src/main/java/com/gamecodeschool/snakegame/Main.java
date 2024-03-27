@@ -14,7 +14,6 @@ class Main {
         System.out.println("Name:" + player2.getName() + ", Age:" + player2.getAge()
                 + ", Game Name:" + player2.getGameName() + ", Game Id: " + player2.getGameId());
 
-
     }
 
 }
