@@ -16,6 +16,8 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import java.io.IOException;
+import android.graphics.Bitmap;
+import android.graphics.Rect;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -55,6 +57,10 @@ class SnakeGame extends SurfaceView implements Runnable{
     private Apple mApple;
 
     private Bitmap mBitmapBackground;
+    private Rect pauseButtonRect;
+    private boolean isGamePaused = false;
+
+    private Bitmap pauseButtonBitmap;
 
 
     // This is the constructor method that gets called
@@ -142,6 +148,9 @@ class SnakeGame extends SurfaceView implements Runnable{
 
         // Setup mNextFrameTime so an update can triggered
         mNextFrameTime = System.currentTimeMillis();
+
+	mPlaying = true;
+        mPaused = false;
     }
 
 
@@ -236,6 +245,27 @@ class SnakeGame extends SurfaceView implements Runnable{
 
             // Draw the apple and the snake
             drawingappleandsnake();
+
+            // Define the width and spacing of the pause bars
+            int barWidth = pauseButtonRect.width() / 4;
+            int barSpacing = barWidth / 2;
+
+            // Set the paint for drawing the bars
+            mPaint.setColor(Color.BLACK); // White color for the bars
+            mPaint.setStyle(Paint.Style.FILL); // Solid fill
+
+            //Draw the first bar
+            mCanvas.drawRect(pauseButtonRect.left + barSpacing,
+                    pauseButtonRect.top + barSpacing,
+                    pauseButtonRect.left + barSpacing + barWidth,
+                    pauseButtonRect.bottom - barSpacing, mPaint);
+
+            // Draw the second bar
+            mCanvas.drawRect(pauseButtonRect.right - barSpacing - barWidth,
+                    pauseButtonRect.top + barSpacing,
+                    pauseButtonRect.right - barSpacing,
+                    pauseButtonRect.bottom - barSpacing, mPaint);
+
             // Draw some text while paused
             mpaused();
 
@@ -278,27 +308,38 @@ class SnakeGame extends SurfaceView implements Runnable{
     public void drawingText(String text, int x, int y) {
         mCanvas.drawText(text, x, y, mPaint);
     }
-    @Override
-    public boolean onTouchEvent(MotionEvent motionEvent) {
-        switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
-            case MotionEvent.ACTION_UP:
-                if (mPaused) {
-                    mPaused = false;
+
+  @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        int x = (int) event.getX();
+        int y = (int) event.getY();
+
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                // Check if the pause area was touched
+                if (pauseButtonRect.contains(x, y)) {
+                    // Toggle the pause state
+                    isGamePaused = !isGamePaused;
+                    if (isGamePaused) {
+                        // Pause the game logic
+                        pause();
+                    } else {
+                        // Resume the game logic
+                        resume();
+                    }
+                    return true; // This touch event is handled
+                } else if (isGamePaused) {
+                    
                     newGame();
-
-                    // Don't want to process snake direction for this tap
-                    return true;
+                    isGamePaused = false; // Ensure the game is no longer marked as paused
+                    return true; // This touch event is handled
+                } else {
+                    // If the game is not paused, let the Snake class handle the input for changing direction
+                    mSnake.switchHeading(event);
                 }
-
-                // Let the Snake class handle the input
-                mSnake.switchHeading(motionEvent);
                 break;
-
-            default:
-                break;
-
         }
-        return true;
+        return super.onTouchEvent(event);
     }
 
 
@@ -313,10 +354,13 @@ class SnakeGame extends SurfaceView implements Runnable{
     }
 
 
-    // Start the thread
-    public void resume() {
+   public void resume() {
         mPlaying = true;
-        mThread = new Thread(this);
-        mThread.start();
+            if (mPlaying = true) {
+
+                mThread = new Thread(this);
+                mThread.start();
+
+        }
     }
 }
