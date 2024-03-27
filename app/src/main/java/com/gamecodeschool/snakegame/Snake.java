@@ -1,6 +1,7 @@
 package com.gamecodeschool.snakegame;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -10,10 +11,13 @@ import android.graphics.Point;
 import android.view.MotionEvent;
 
 import java.util.ArrayList;
-class Snake {
+
+interface IDrawable {
+    void draw(Canvas canvas, Paint paint);
+}
+class Snake implements IDrawable{
     // The location in the grid of all the segments
     private ArrayList<Point> segmentLocations;
-
     // How big is each segment of the snake?
     private int mSegmentSize;
 
@@ -51,6 +55,7 @@ class Snake {
         // range from the passed in parameters
         mSegmentSize = ss;
         mMoveRange = mr;
+
 
         // Create and scale the bitmaps
         mBitmapHeadRight = BitmapFactory
@@ -208,7 +213,8 @@ class Snake {
         canvas.drawBitmap(direction, segmentLocations.get(0).x*mSegmentSize, segmentLocations.get(0).y*mSegmentSize, paint);
     }
 
-    void draw(Canvas canvas, Paint paint) {
+    @Override
+    public void draw(Canvas canvas, Paint paint) {
 
         // Don't run this code if ArrayList has nothing in it
         if (!segmentLocations.isEmpty()) {
