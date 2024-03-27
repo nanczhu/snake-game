@@ -18,8 +18,6 @@ import android.view.SurfaceView;
 import java.io.IOException;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
-
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 //importing font package
