@@ -41,11 +41,17 @@ class Apple extends Fruit {
 
 
     // This is called every time an apple is eaten
+    // Overloaded spawn method that has random spawn location
     void spawn(){
         // Choose two random values and place the apple
         Random random = new Random();
         location.x = random.nextInt(mSpawnRange.x) + 1;
         location.y = random.nextInt(mSpawnRange.y - 1) + 1;
+    }
+    // Overloaded spawn method that can create a specific location spawn
+    void spawn (Point specificLocation){
+        location.x = specificLocation.x;
+        location.y = specificLocation.y;
     }
 
     // Let SnakeGame know where the apple is
