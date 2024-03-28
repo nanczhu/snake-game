@@ -187,8 +187,9 @@ class SnakeGame extends GameManaging implements IDraw{
         // There are 1000 milliseconds in a second
         final long MILLIS_PER_SECOND = 1000;
 
+        final boolean isNextFrameTime = mNextFrameTime <= System.currentTimeMillis();
         // Are we due to update the frame
-        if(mNextFrameTime <= System.currentTimeMillis()){
+        if(isNextFrameTime){
             // Tenth of a second has passed
 
             // Setup when the next update will be triggered
