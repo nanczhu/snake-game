@@ -25,7 +25,7 @@ interface IDraw {
 
 }
 
-class SnakeGame extends SurfaceView implements Runnable, IDraw{
+class SnakeGame extends GameManaging implements IDraw{
     // Objects for the game loop/thread
     private Thread mThread = null;
     // Control pausing between updates
@@ -149,16 +149,16 @@ class SnakeGame extends SurfaceView implements Runnable, IDraw{
         // Setup mNextFrameTime so an update can triggered
         mNextFrameTime = System.currentTimeMillis();
 
-	mPlaying = true;
-        mPaused = false;
+        resume();
     }
+
 
 
     // Handles the game loop
     @Override
     public void run() {
-        while (mPlaying) {
-            if(!mPaused) {
+        while (isRunning) {
+            if(!isPaused) {
                 // Update 10 times a second
                 if (updateRequired()) {
                     update();
@@ -219,7 +219,7 @@ class SnakeGame extends SurfaceView implements Runnable, IDraw{
             // Pause the game ready to start again
             mSP.play(mCrashID, 1, 1, 0, 0, 1);
 
-            mPaused =true;
+            isPaused =true;
         }
 
     }
@@ -249,6 +249,7 @@ class SnakeGame extends SurfaceView implements Runnable, IDraw{
             int barWidth = pauseButtonRect.width() / 4;
             int barSpacing = barWidth / 2;
 
+            /* This is my pause code that will need to be fixed to work
             // Set the paint for drawing the bars
             mPaint.setColor(Color.BLACK); // White color for the bars
             mPaint.setStyle(Paint.Style.FILL); // Solid fill
@@ -264,6 +265,8 @@ class SnakeGame extends SurfaceView implements Runnable, IDraw{
                     pauseButtonRect.top + barSpacing,
                     pauseButtonRect.right - barSpacing,
                     pauseButtonRect.bottom - barSpacing, mPaint);
+
+             */
 
             // Draw some text while paused
             mpaused();
@@ -290,7 +293,7 @@ class SnakeGame extends SurfaceView implements Runnable, IDraw{
         mSnake.draw(mCanvas, mPaint);
     }
     public void mpaused() {
-        if(mPaused){
+        if(isPaused){
             // Set the size and color of the mPaint for the text
             settingColorandSize(Color.argb(255, 255, 255, 255), 250);
 
@@ -308,43 +311,33 @@ class SnakeGame extends SurfaceView implements Runnable, IDraw{
         mCanvas.drawText(text, x, y, mPaint);
     }
 
-  @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        int x = (int) event.getX();
-        int y = (int) event.getY();
-
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                // Check if the pause area was touched
-                if (pauseButtonRect.contains(x, y)) {
-                    // Toggle the pause state
-                    isGamePaused = !isGamePaused;
-                    if (isGamePaused) {
-                        // Pause the game logic
-                        pause();
-                    } else {
-                        // Resume the game logic
-                        resume();
-                    }
-                    return true; // This touch event is handled
-                } else if (isGamePaused) {
-                    
+    @Override
+    public boolean onTouchEvent(MotionEvent motionEvent) {
+        switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
+            case MotionEvent.ACTION_UP:
+                if (isPaused) {
+                    isPaused = false;
                     newGame();
-                    isGamePaused = false; // Ensure the game is no longer marked as paused
-                    return true; // This touch event is handled
-                } else {
-                    // If the game is not paused, let the Snake class handle the input for changing direction
-                    mSnake.switchHeading(event);
+
+                    // Don't want to process snake direction for this tap
+                    return true;
                 }
+
+                // Let the Snake class handle the input
+                mSnake.switchHeading(motionEvent);
                 break;
+
+            default:
+                break;
+
         }
-        return super.onTouchEvent(event);
+        return true;
     }
 
 
     // Stop the thread
     public void pause() {
-        mPlaying = false;
+        isRunning = false;
         try {
             mThread.join();
         } catch (InterruptedException e) {
@@ -353,13 +346,10 @@ class SnakeGame extends SurfaceView implements Runnable, IDraw{
     }
 
 
-   public void resume() {
-        mPlaying = true;
-            if (mPlaying = true) {
+    public void resume() {
+        isRunning = true;
+        mThread = new Thread(this);
+        mThread.start();
 
-                mThread = new Thread(this);
-                mThread.start();
-
-        }
     }
 }
