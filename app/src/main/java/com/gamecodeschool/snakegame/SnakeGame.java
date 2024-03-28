@@ -75,6 +75,15 @@ class SnakeGame extends GameManaging implements IDraw{
         // managing sounds
         managingSound();
 
+        int pauseButtonSize = 100; // The size (width and height) of the pause button
+        int pauseButtonMargin = 20; // The margin from the bottom and left edges
+
+        // Adjusting the pauseButtonRect in the SnakeGame constructor
+        pauseButtonRect = new Rect(pauseButtonMargin,
+                size.y - pauseButtonSize - pauseButtonMargin, // Adjust for bottom
+                pauseButtonSize + pauseButtonMargin,
+                size.y - pauseButtonMargin); // Adjust for bottom
+
         try {
             AssetManager assetManager = context.getAssets();
             AssetFileDescriptor descriptor;
@@ -245,11 +254,17 @@ class SnakeGame extends GameManaging implements IDraw{
             // Draw the apple and the snake
             drawingappleandsnake();
 
+
+
+            // Draw some text while paused
+            mpaused();
+
+            printingNames();
+
             // Define the width and spacing of the pause bars
             int barWidth = pauseButtonRect.width() / 4;
             int barSpacing = barWidth / 2;
 
-            /* This is my pause code that will need to be fixed to work
             // Set the paint for drawing the bars
             mPaint.setColor(Color.BLACK); // White color for the bars
             mPaint.setStyle(Paint.Style.FILL); // Solid fill
@@ -265,13 +280,6 @@ class SnakeGame extends GameManaging implements IDraw{
                     pauseButtonRect.top + barSpacing,
                     pauseButtonRect.right - barSpacing,
                     pauseButtonRect.bottom - barSpacing, mPaint);
-
-             */
-
-            // Draw some text while paused
-            mpaused();
-
-            printingNames();
 
             // Unlock the mCanvas and reveal the graphics for this frame
             mSurfaceHolder.unlockCanvasAndPost(mCanvas);
@@ -312,26 +320,35 @@ class SnakeGame extends GameManaging implements IDraw{
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent motionEvent) {
-        switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
-            case MotionEvent.ACTION_UP:
-                if (isPaused) {
-                    isPaused = false;
+    public boolean onTouchEvent(MotionEvent event) {
+        int x = (int) event.getX();
+        int y = (int) event.getY();
+
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                // Check if the pause area was touched
+                if (pauseButtonRect.contains(x, y)) {
+                    // Toggle the pause state
+                    isPaused = !isPaused;
+                    if (isPaused) {
+                        // Pause the game logic
+                        pause();
+                    } else {
+                        // Resume the game logic
+                        resume();
+                    }
+                    return true; // This touch event is handled
+                } else if (isPaused) {
                     newGame();
-
-                    // Don't want to process snake direction for this tap
-                    return true;
+                    isPaused = false; // Ensure the game is no longer marked as paused
+                    return true; // This touch event is handled
+                } else {
+                    // If the game is not paused, let the Snake class handle the input for changing direction
+                    mSnake.switchHeading(event);
                 }
-
-                // Let the Snake class handle the input
-                mSnake.switchHeading(motionEvent);
                 break;
-
-            default:
-                break;
-
         }
-        return true;
+        return super.onTouchEvent(event);
     }
 
 
