@@ -14,6 +14,7 @@ import java.util.ArrayList;
 
 interface IDrawable {
     void draw(Canvas canvas, Paint paint);
+    void move();
 }
 class Snake implements IDrawable{
     // The location in the grid of all the segments
@@ -131,6 +132,7 @@ class Snake implements IDrawable{
     }
 
 
+    @Override
     public void move() {
         // Move the body
         // Start at the back and move it
@@ -194,6 +196,7 @@ class Snake implements IDrawable{
     }
 
     boolean checkDinner(Point l) {
+
         //if (snakeXs[0] == l.x && snakeYs[0] == l.y) {
         if (segmentLocations.get(0).x == l.x &&
                 segmentLocations.get(0).y == l.y) {
@@ -215,7 +218,6 @@ class Snake implements IDrawable{
 
     @Override
     public void draw(Canvas canvas, Paint paint) {
-
         // Don't run this code if ArrayList has nothing in it
         if (!segmentLocations.isEmpty()) {
             // All the code from this method goes here
@@ -254,9 +256,9 @@ class Snake implements IDrawable{
 
     // Handle changing direction
     void switchHeading(MotionEvent motionEvent) {
-
+        final boolean isRightHandside = motionEvent.getX() >= halfWayPoint;
         // Is the tap on the right hand side?
-        if (motionEvent.getX() >= halfWayPoint) {
+        if (isRightHandside) {
             rotateRight();
         } else {
             rotateLeft();
